@@ -33,7 +33,7 @@ export function applyMacCpuThrottleFromEnv(): MacCpuThrottle | null {
   }
   if (process.argv.some((arg) => arg.includes("vitest/dist/workers"))) {
     throw new Error(
-      `THROTTLE=${mode} must wrap the vitest process. Use examples/vitest.config.ts.`,
+      `THROTTLE=${mode} must wrap the vitest process. Use apps/examples/vitest.config.ts.`,
     )
   }
   console.log(`[throttle] taskpolicy -c ${mode}`)

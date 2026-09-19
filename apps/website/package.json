@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "bun run build:chat && tsc && vite build",
-    "build:chat": "bun ../scripts/web.ts --production --rebuild",
+    "build:chat": "bun ../../scripts/web.ts --production --rebuild",
     "deploy:prod": "bun run build && wrangler deploy",
     "dev": "tuistory -- vite dev",
     "start": "vite preview",

@@ -13,8 +13,8 @@ React CJS bundle  ►  hermes-node  ►  process.dlopen  ►  @gpuix/native  ►
 Needs a **locally rebuilt** `hermes-node`. The v0.0.2 macOS release cannot load any `.node` addon. See [NAPI blocking issues](#napi-blocking-issues).
 
 ```bash
-bun hermes/build.ts
-GPUIX_BACKGROUND=1 hermes-node --no-compile-cache hermes/app.cjs
+bun apps/hermes/build.ts
+GPUIX_BACKGROUND=1 hermes-node --no-compile-cache apps/hermes/app.cjs
 ```
 
 `GPUIX_SCREENSHOT=/tmp/out.png` paints one frame, writes a PNG, and exits.
@@ -22,10 +22,10 @@ GPUIX_BACKGROUND=1 hermes-node --no-compile-cache hermes/app.cjs
 ## Single executable
 
 ```bash
-hermes-node --build-bundle=hermes/dist/app.bundle hermes/app.cjs
-hermes-node --build-exe=hermes/dist/gpuix-hermes \
+hermes-node --build-bundle=apps/hermes/dist/app.bundle apps/hermes/app.cjs
+hermes-node --build-exe=apps/hermes/dist/gpuix-hermes \
   --kit=<hermes-node-build>/kit \
-  hermes/dist/app.bundle
+  apps/hermes/dist/app.bundle
 ```
 
 `--build-exe` links a new binary. Native addons still sit beside it. `dlopen` takes a path.

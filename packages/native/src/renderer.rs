@@ -3775,7 +3775,7 @@ impl VirtualListEntry {
         //
         // While the content is shorter than the viewport gpui re-anchors to
         // item 0 every layout, so the drift only appears once the list
-        // overflows. That is why `example-app` looked stuck at two rows.
+        // overflows. That is why `apps/example-app` looked stuck at two rows.
         //
         // The guard is `is_following_tail()`, not `config.follow_tail`: a
         // following list that does not fill its viewport also ends layout

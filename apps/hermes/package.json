@@ -7,5 +7,8 @@
     "start": "hermes-node --no-compile-cache app.cjs",
     "bundle": "hermes-node --build-bundle=dist/app.bundle app.cjs",
     "exe": "hermes-node --build-exe=dist/gpuix-hermes --kit=\"$HERMES_NODE_KIT\" dist/app.bundle"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
   }
 }

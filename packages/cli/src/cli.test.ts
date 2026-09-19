@@ -18,7 +18,7 @@ afterEach(async () => {
 })
 
 describe('createGpuixApp', () => {
-  testWithGitHub('extracts example-app and makes its dependencies installable', async () => {
+  testWithGitHub('extracts the example app template and makes its dependencies installable', async () => {
     const parentDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'gpuix-cli-'))
     temporaryDirectories.push(parentDirectory)
     const targetDirectory = path.join(parentDirectory, 'my-app')

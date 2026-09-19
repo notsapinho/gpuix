@@ -31,7 +31,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/remorses/gpuix",
-    "directory": "cli"
+    "directory": "packages/cli"
   },
   "homepage": "https://github.com/remorses/gpuix#quickstart",
   "bugs": "https://github.com/remorses/gpuix/issues",

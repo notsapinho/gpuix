@@ -129,7 +129,7 @@ jobs:
         run: bun run build
 
       - name: Compile chat example
-        working-directory: examples
+        working-directory: apps/examples
         shell: bash
         env:
           COMPILE_OUT: example-chat-${{ matrix.settings.target }}
@@ -143,7 +143,7 @@ jobs:
       # got a file the OS refused to open. `.tar.gz` keeps the mode and names
       # itself. Windows already ships a `.exe`, which needs no unpacking.
       - name: Package chat example
-        working-directory: examples/dist
+        working-directory: apps/examples/dist
         shell: bash
         env:
           NAME: example-chat-${{ matrix.settings.target }}
@@ -161,7 +161,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: example-chat-${{ matrix.settings.target }}
-          path: examples/dist/example-chat-${{ matrix.settings.target }}.*
+          path: apps/examples/dist/example-chat-${{ matrix.settings.target }}.*
           if-no-files-found: error
 
   test:
@@ -193,23 +193,23 @@ jobs:
 
       - name: Run example tests
         run: bun run test
-        working-directory: examples
+        working-directory: apps/examples
 
       # Bun never typechecks. This step is what catches a broken public type,
       # such as `key` disappearing from every element.
       - name: Typecheck the example app
         run: bun run typecheck
-        working-directory: example-app
+        working-directory: apps/example-app
 
       - name: Test CLI
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun run test
-        working-directory: cli
+        working-directory: packages/cli
 
       - name: Build CLI
         run: bun run build
-        working-directory: cli
+        working-directory: packages/cli
 
   test-windows:
     name: test-windows
@@ -255,7 +255,7 @@ jobs:
 
       - name: Run example tests
         run: bun run test
-        working-directory: examples
+        working-directory: apps/examples
 
   publish-cli:
     name: publish-cli
@@ -276,7 +276,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun run test
-        working-directory: cli
+        working-directory: packages/cli
 
       - name: Publish @gpuix/cli
         env:
@@ -284,12 +284,12 @@ jobs:
           SIGILLO_PROJECT: ${{ vars.SIGILLO_PROJECT }}
           SIGILLO_ENVIRONMENT: prod
         run: |
-          CURRENT_VERSION=$(node -p "require('./cli/package.json').version")
+          CURRENT_VERSION=$(node -p "require('./packages/cli/package.json').version")
           if npm view "@gpuix/cli@${CURRENT_VERSION}" version 2>/dev/null; then
             echo "@gpuix/cli@${CURRENT_VERSION} already published, skipping"
           else
             echo "Publishing @gpuix/cli@${CURRENT_VERSION}"
-            cd cli
+            cd packages/cli
             bunx sigillo run --command 'printf "//registry.npmjs.org/:_authToken=%s\n" "$NPM_TOKEN" > "$HOME/.npmrc" && bun publish --access public'
           fi
 

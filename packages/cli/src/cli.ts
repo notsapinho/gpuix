@@ -13,7 +13,7 @@ import JSZip from 'jszip'
 const require = createRequire(import.meta.url)
 const packageJson = require('../package.json') as { version: string }
 const archiveUrl = 'https://github.com/remorses/gpuix/archive/refs/heads/main.zip'
-const templatePrefix = 'gpuix-main/example-app/'
+const templatePrefix = 'gpuix-main/apps/example-app/'
 const reactPackageUrl = 'https://registry.npmjs.org/@gpuix%2Freact/latest'
 
 export async function createGpuixApp({
@@ -54,7 +54,7 @@ export async function createGpuixApp({
   )
 
   if (templateFiles.length === 0) {
-    throw new Error('example-app was not found in the downloaded archive')
+    throw new Error('apps/example-app was not found in the downloaded archive')
   }
 
   await fs.mkdir(targetDirectory, { recursive: true })

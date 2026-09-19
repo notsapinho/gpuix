@@ -84,7 +84,7 @@ async function main() {
   const startApp = (script: string) => {
     app?.kill("SIGTERM")
     app = spawn("bun", ["run", script], {
-      cwd: path.join(ROOT, "examples"),
+      cwd: path.join(ROOT, "apps", "examples"),
       stdio: "inherit",
     })
     app.on("error", (error) => console.error(error.message))
@@ -108,7 +108,7 @@ async function main() {
       log(`built in ${seconds}s`)
 
       if (mode.kind === "app") {
-        log(`restarting examples/${mode.script}`)
+        log(`restarting apps/examples/${mode.script}`)
         startApp(mode.script)
       } else {
         log(`rendering "${mode.pattern}" screenshots`)

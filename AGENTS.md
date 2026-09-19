@@ -54,7 +54,7 @@ Instead of Electron/web rendering, your React components render directly to the 
 
 A `div` with `onMouseDown`, `onMouseMove`, and `onMouseUp` keeps move and up after the pointer leaves the hitbox. GPUIX arms that automatically when the same node listens for down and move, using GPUI's window-level mouse listeners.
 
-Put all three on the element the user grabs. Capture is armed by the **press**, so an overlay mounted during that press never arms it, and a release past the window edge is lost. `examples/timeline.tsx` drags clips, trims edges, scrubs, and marquee-selects with no overlay at all.
+Put all three on the element the user grabs. Capture is armed by the **press**, so an overlay mounted during that press never arms it, and a release past the window edge is lost. `apps/examples/timeline.tsx` drags clips, trims edges, scrubs, and marquee-selects with no overlay at all.
 
 ```
 React (TypeScript)  →  napi-rs  →  GPUI (Rust)  →  GPU
@@ -130,11 +130,23 @@ We don't fight GPUI's architecture - we embrace it by sending a complete element
 
 ```
 gpuix/
-├── cli/                         # `gpuix new` project scaffolder
-│   ├── src/cli.ts               # Goke CLI and example-app extraction
-│   └── package.json
+├── apps/
+│   ├── example-app/             # Starter todo app, copied by `gpuix new`
+│   │   ├── app.tsx
+│   │   └── package.json
+│   │
+│   ├── examples/                # Dev examples and perf suites
+│   │   ├── package.json
+│   │   └── counter.tsx
+│   │
+│   ├── hermes/                  # hermes-node host proof
+│   └── website/                 # Docs site (Vite + Cloudflare)
 │
 ├── packages/
+│   ├── cli/                    # `gpuix new` project scaffolder
+│   │   ├── src/cli.ts          # Goke CLI and template extraction
+│   │   └── package.json
+│   │
 │   ├── native/                 # Rust napi-rs bindings
 │   │   ├── src/
 │   │   │   ├── lib.rs          # Module exports
@@ -166,12 +178,16 @@ gpuix/
 │       │       └── host.ts     # TypeScript types
 │       └── package.json
 │
-├── examples/
-│   ├── package.json            # Workspace package for examples
-│   └── counter.tsx             # Example React app
-│
+├── scripts/                    # Repo tooling: dev loop, web server, screenshots
+├── docs/                       # Design docs and benchmarks
+├── plans/                      # Forward-looking design notes
+├── turbo.json                  # Turborepo task graph (build / test / typecheck)
 └── AGENTS.md                   # This file
 ```
+
+`apps/` holds runnable projects. `packages/` holds the published libraries and
+the CLI. `bun install` at the root installs the whole graph, and
+`turbo run build` / `test` / `typecheck` runs tasks in dependency order.
 
 ## Text rendering: one funnel, no exceptions
 
@@ -497,7 +513,7 @@ splice. Do not "simplify" that away.
 **Do not trust a short list to prove a prepend works.** While the content is
 shorter than the viewport, gpui's "does not fill" branch re-anchors to item 0 on
 every layout, so the drift is invisible. It appears on the frame where the list
-first overflows. `example-app` looked stuck on two rows for exactly that reason,
+first overflows. `apps/example-app` looked stuck on two rows for exactly that reason,
 and the regression test in `virtual-list.test.tsx` grows a 160px list from 2 rows
 to 12 rather than starting tall.
 
@@ -538,7 +554,7 @@ When two panes must stay locked to the pixel, **React owns the offset**: one
 `onScroll` listener on a non-scrolling parent, `scrollX` / `scrollY` in state,
 and one absolutely positioned wrapper per pane carrying the translation. Zed
 does the same; the editor owns its scroll position and paints the gutter and the
-text from it. `examples/timeline.tsx` is the worked example.
+text from it. `apps/examples/timeline.tsx` is the worked example.
 
 Those wrappers must set `pointerEvents: "none"`. A positioned box takes hits
 even with no fill, so otherwise it swallows every press meant for the surface
@@ -546,7 +562,7 @@ behind it. Its children keep their own hitboxes.
 
 Keep the moving subtree in a `memo` component whose props do not change during a
 pan. Then a wheel costs a handful of style mutations instead of one per row.
-`examples/timeline.perf.test.tsx` measures both halves.
+`apps/examples/timeline.perf.test.tsx` measures both halves.
 
 ## Scroll cost
 
@@ -631,7 +647,7 @@ console.log(`mount ${(performance.now() - start).toFixed(1)}ms`)
 ```
 
 ```bash
-cd examples
+cd apps/examples
 MOUNT_ONLY=1 bun --cpu-prof --cpu-prof-dir=../tmp/cpu-profiles profile-chat-scroll.tsx
 INTERACT=1 bun profile-chat-scroll.tsx
 npx profano ../tmp/cpu-profiles/CPU.*.cpuprofile -n 30
@@ -660,7 +676,7 @@ queue.push(['setStyle', id, styleObject])
 queue.push(['setCustomProp', id, 'side', 'top'])
 ```
 
-After a JS reconciler change, **build `@gpuix/react`**. `examples/` and
+After a JS reconciler change, **build `@gpuix/react`**. `apps/examples/` and
 `bun --hot chat.tsx` load `packages/react/dist`, not `src`. packages/react
 vitest uses `src`. You will think the fix works in one suite and fail in the
 app.
@@ -699,7 +715,7 @@ measures both halves on the real `ChatApp` queue, and the answer is that the
 codec is the **smallest** lever.
 
 ```bash
-cd examples && TURNS=10000 SAFE_MDX=1 bun run bench:serde
+cd apps/examples && TURNS=10000 SAFE_MDX=1 bun run bench:serde
 cd packages/native && cargo run --release --example bench_serde
 ```
 
@@ -816,7 +832,7 @@ so the matrix carries the architecture each OS is mostly used on and nothing els
 same set.** A target in one and not the other means the published loader looks for
 a platform package that CI never built. Add a target back when someone asks for it.
 
-Each build job also compiles `examples/chat.tsx` with `bun build --compile` against
+Each build job also compiles `apps/examples/chat.tsx` with `bun build --compile` against
 that target's `.node`. A release asset is served as raw bytes, so a download loses
 the executable bit and, on macOS and Linux, arrives with no extension. The job packs
 those two into `example-chat-<target>.tar.gz`, which keeps the mode and names itself.
@@ -1228,13 +1244,13 @@ cd packages/native && cargo test --lib
 cd packages/react && bun run test
 
 # Example app tests
-cd examples && bun run test
+cd apps/examples && bun run test
 
 # Starter todo app, driven through the automation client
-cd example-app && bun run test
+cd apps/example-app && bun run test
 
 # Chat and timeline draw / chrome regressions (excluded from the default run)
-cd examples && bun run test:perf
+cd apps/examples && bun run test:perf
 
 # macOS CPU clamp. E-cores, not Chrome 6x. Do not set in CI.
 THROTTLE=utility bun run test:perf
@@ -1242,7 +1258,7 @@ THROTTLE=utility bun profile-chat-scroll.tsx
 THROTTLE=utility bun --hot chat.tsx
 ```
 
-`examples/chat.perf.test.tsx` and `examples/timeline.perf.test.tsx` are the
+`apps/examples/chat.perf.test.tsx` and `apps/examples/timeline.perf.test.tsx` are the
 automated profiles. They use `createTestRoot()`, not the live window. Assert
 **p95 draw / flush ms**, not a per-frame FPS floor.
 
@@ -1276,7 +1292,7 @@ can be inspected after a run.
 ### Integration Test
 
 ```bash
-cd examples && GPUIX_BACKGROUND=1 bun --hot chat.tsx
+cd apps/examples && GPUIX_BACKGROUND=1 bun --hot chat.tsx
 ```
 
 Use tuistory for the long-running process. Do not use `tsx` or raw `tmux`.
@@ -1322,7 +1338,7 @@ import { launch } from '@gpuix/react/automation'
 const app = await launch({
   command: 'bun',
   args: ['chat.tsx'],
-  cwd: 'examples',
+  cwd: 'apps/examples',
   env: { GPUIX_BACKGROUND: '1' },
 })
 await app.getByTestId('sidebar-collapse').waitFor({ timeoutMs: 30_000 })
@@ -1374,7 +1390,7 @@ If remorses says OK, follow the rest of this file and these rules.
 **Must**
 
 - Add a `.changeset/*.md` file for every user-facing fix or feature. Put `Fixes #N` on its own line when the work closes an issue
-- Run the package test scripts: `packages/react` then build `@gpuix/react`, then `examples`
+- Run the package test scripts: `packages/react` then build `@gpuix/react`, then `apps/examples`
 - Keep one scroll parent. Nested scrolling is not supported
 - Send every painted string through `crate::text`. Never `div().child(some_string)`
 - Put layout numbers on `Theme::metrics`, not new Rust constants

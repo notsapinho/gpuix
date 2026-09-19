@@ -1,9 +1,9 @@
 /**
  * Build the browser Wasm target and serve the example with HMR.
  *
- * Bun's frontend dev server bundles `examples/web.html`, watches its module
+ * Bun's frontend dev server bundles `apps/examples/web.html`, watches its module
  * graph, and runs the React Fast Refresh transform. An edit to
- * `examples/chat.tsx` keeps `useState`, so the GPUI canvas, the wasm module,
+ * `apps/examples/chat.tsx` keeps `useState`, so the GPUI canvas, the wasm module,
  * and the scroll position all survive the update.
  *
  * The wasm half must never re-evaluate. `WebGpuixRenderer::init` fails with
@@ -27,14 +27,14 @@ import { spawn } from "node:child_process"
 import fs from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
-import chatPage from "../examples/web.html"
-import infinitePage from "../examples/web-infinite-chat.html"
+import chatPage from "../apps/examples/web.html"
+import infinitePage from "../apps/examples/web-infinite-chat.html"
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const NATIVE = path.join(ROOT, "packages", "native")
 const PACKAGE_OUTPUT = path.join(NATIVE, "wasm")
 const WASM = path.join(NATIVE, "target", "wasm32-unknown-unknown", "release", "gpuix_native.wasm")
-const PRODUCTION_OUTPUT = path.join(ROOT, "website", "public", "chat-example")
+const PRODUCTION_OUTPUT = path.join(ROOT, "apps", "website", "public", "chat-example")
 
 /**
  * `packages/native/.cargo/config.toml` links the Wasm with `--shared-memory`,
@@ -90,7 +90,7 @@ async function buildProduction(): Promise<void> {
   fs.rmSync(PRODUCTION_OUTPUT, { recursive: true, force: true })
   console.log(`web: bundling the chat example into ${path.relative(ROOT, PRODUCTION_OUTPUT)}`)
   const bundle = await Bun.build({
-    entrypoints: [path.join(ROOT, "examples", "web-chat.tsx")],
+    entrypoints: [path.join(ROOT, "apps", "examples", "web-chat.tsx")],
     outdir: PRODUCTION_OUTPUT,
     target: "browser",
     format: "esm",
@@ -101,7 +101,7 @@ async function buildProduction(): Promise<void> {
     for (const message of bundle.logs) console.error(message)
     throw new Error("browser bundle failed")
   }
-  fs.copyFileSync(path.join(ROOT, "examples", "web.css"), path.join(PRODUCTION_OUTPUT, "web.css"))
+  fs.copyFileSync(path.join(ROOT, "apps", "examples", "web.css"), path.join(PRODUCTION_OUTPUT, "web.css"))
 }
 
 async function main() {
@@ -120,7 +120,7 @@ async function main() {
     return
   }
 
-  // `examples/` imports `@gpuix/react` through its `main`, so `dist` has to
+  // `apps/examples/` imports `@gpuix/react` through its `main`, so `dist` has to
   // exist. Run `bun run dev` in `packages/react` to keep it fresh while editing
   // the library itself.
   console.log("web: building @gpuix/react")

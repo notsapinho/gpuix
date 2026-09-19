@@ -14,7 +14,7 @@ and native `<markdown>`.
 ## Quickstart
 
 Create an app from the official example. The command downloads only
-`example-app/` and installs its dependencies. There is no repository clone,
+`apps/example-app/` and installs its dependencies. There is no repository clone,
 native build, or Rust toolchain.
 
 ```bash
@@ -119,7 +119,7 @@ bun build --compile app.tsx --outfile dist/app
 The binary carries the renderer, so it runs with no Bun and no Node install.
 
 For a smaller ship set, run the same React app on
-[hermes-node](./website/src/guides/hermes.mdx) instead of Bun. That path is
+[hermes-node](./apps/website/src/guides/hermes.mdx) instead of Bun. That path is
 **12 MB** plus a **22 MB** native sidecar. The steps are in that guide.
 
 ### 5. Wrap it in an app with an icon
@@ -295,7 +295,7 @@ GitHub will 404 the API. Optional: put a Cloudflare cache in front of
 
 ### Start from the example app
 
-[`example-app/`](https://github.com/remorses/gpuix/tree/main/example-app) is a complete todo app in one file, with `dev`,
+[`apps/example-app/`](https://github.com/remorses/gpuix/tree/main/apps/example-app) is a complete todo app in one file, with `dev`,
 `build`, `web:dev` and `typecheck` scripts already wired. Create a copy with
 `bunx @gpuix/cli new my-app`.
 
@@ -314,7 +314,7 @@ gpuix completions install
 
 | Example | Run | What it shows |
 |---|---|---|
-| **todo** | `bun run dev` in [`example-app/`](https://github.com/remorses/gpuix/tree/main/example-app) | The starting point: one file, a `<virtual-list>`, a native `<input>`, and an animated sidebar |
+| **todo** | `bun run dev` in [`apps/example-app/`](https://github.com/remorses/gpuix/tree/main/apps/example-app) | The starting point: one file, a `<virtual-list>`, a native `<input>`, and an animated sidebar |
 | **blurred window** | `bun run blurred-window` | A macOS frosted-glass surface using GPUI's native vibrancy backdrop and transparent titlebar |
 | **chat** | `bun --hot chat.tsx` | A GPUIX app: transparent titlebar, animated sidebar, per-thread transcripts, demo replies, composer, `<markdown>` |
 | **timeline** | `bun --hot timeline.tsx` | A video-editor timeline: clip dragging, edge trimming with snapping, playhead scrubbing, marquee selection, zoom under the pointer, and a two-axis pan with a frozen ruler and track column |
@@ -324,8 +324,8 @@ gpuix completions install
 | **diff** | `bun --hot diff.tsx` | A diff viewer composed from `<div>` and `<text>` in JS, for comparison |
 | **web** | `bun run web` from the repository root | The ChatGPT example rendered in a browser canvas with WebGPU |
 
-The todo app lives in [`example-app/`](https://github.com/remorses/gpuix/tree/main/example-app) and is meant to be copied with `bunx @gpuix/cli new`.
-The rest live in [`examples/`](https://github.com/remorses/gpuix/tree/main/examples). Those `bun --hot` commands need a clone of this repo and a local native build. They will not run against the published packages alone.
+The todo app lives in [`apps/example-app/`](https://github.com/remorses/gpuix/tree/main/apps/example-app) and is meant to be copied with `bunx @gpuix/cli new`.
+The rest live in [`apps/examples/`](https://github.com/remorses/gpuix/tree/main/apps/examples). Those `bun --hot` commands need a clone of this repo and a local native build. They will not run against the published packages alone.
 
 Or download a standalone **chat** build from the [GitHub release](https://github.com/remorses/gpuix/releases). No Bun or Rust install is required.
 
@@ -373,7 +373,7 @@ bun scripts/web.ts --rebuild
 #### Hot reload in the browser
 
 `bun run web` serves the example through Bun's frontend dev server, so an edit
-to `examples/chat.tsx` arrives as a **React Fast Refresh** update. Components
+to `apps/examples/chat.tsx` arrives as a **React Fast Refresh** update. Components
 swap in place and `useState` survives, which means the composer text, the
 sidebar selection, and the scroll position all stay where they were. The GPUI
 canvas is never re-created and the ~19 MB Wasm module is never re-fetched.
@@ -507,7 +507,7 @@ Event handlers are stored in a JS-side registry keyed by `(elementId, eventType)
 
 - **`@gpuix/native`** — Rust bindings to GPUI. It publishes napi-rs desktop binaries and a wasm-bindgen browser build, both backed by `GpuixRenderer`, `RetainedTree`, `build_element()`, and `apply_styles()`.
 - **`@gpuix/react`** — React reconciler, event registry, and TypeScript types. Implements the `react-reconciler` host config using the mutation API.
-- **`@gpuix/cli`** — `gpuix new` downloads `example-app/`, sets its published React dependency, and installs it as a standalone project.
+- **`@gpuix/cli`** — `gpuix new` downloads `apps/example-app/`, sets its published React dependency, and installs it as a standalone project.
 
 Pin `@gpuix/react` and `@gpuix/native` to the **same exact version**. GPUIX is
 still pre-1.0. Breaking changes can land before v1. Upgrade both together.
@@ -543,7 +543,7 @@ cd ../react
 bun run build
 
 # Run example (use tmux for long-running sessions)
-cd ../../examples
+cd ../../apps/examples
 bun --hot counter.tsx
 ```
 
@@ -792,14 +792,14 @@ renderer.getDebugFrameOverlayStats()
 
 The overlay shows **draw time**, not FPS. `8.3 MS` is about 120 Hz.
 
-The chat example has a regression test for this: `examples/chat.perf.test.tsx`. It times mount, wheel draw, and sidebar clicks. It asserts p95, not every frame.
+The chat example has a regression test for this: `apps/examples/chat.perf.test.tsx`. It times mount, wheel draw, and sidebar clicks. It asserts p95, not every frame.
 
 The default example suite excludes this hardware-timing test so shared CI runner variance does not fail functional checks. Run it explicitly on the target Mac:
 
 On macOS, `THROTTLE=utility` restarts the process under `taskpolicy -c utility`. That pins work to E-cores. It is an **M1/M2 Air CPU** proxy, not Chrome 6x. GPU and RAM stay fast. `THROTTLE=background` is slower.
 
 ```bash
-cd examples
+cd apps/examples
 THROTTLE=utility bun run test:perf
 THROTTLE=utility bun --hot chat.tsx
 ```
@@ -1104,7 +1104,7 @@ function Pane({ offsetX, children }: { offsetX: number; children: React.ReactNod
 
 Keep the moving subtree in a `memo` component whose props do not change during a
 pan. The wheel then costs a handful of style mutations, not one per row. The
-[timeline example](./examples/timeline.tsx) does this for a ruler, a track
+[timeline example](./apps/examples/timeline.tsx) does this for a ruler, a track
 column, and a clip grid.
 
 For programmatic scroll control, use a React ref to get the element's numeric ID, then call the renderer's scroll methods:
@@ -1317,7 +1317,7 @@ infinite-scroll history: while the reader waits in a loading row, read
 `getListScrollTop`, commit the fetched page, then re-anchor on the message
 that was under the loading row with a negative offset. The message stays at
 the same pixel while the new rows are measured above it —
-`examples/infinite-chat.tsx` is the worked example.
+`apps/examples/infinite-chat.tsx` is the worked example.
 
 An `itemIndex` equal to the item count is gpui's **at-end sentinel**: a
 bottom-aligned list resting at its very end. A reader waiting at a trailing
@@ -2751,7 +2751,7 @@ await app.screenshot({ path: 'sent.png' })
 ```
 
 That is the chat example. The real test lives in
-[`examples/chat.test.tsx`](https://github.com/remorses/gpuix/blob/main/examples/chat.test.tsx).
+[`apps/examples/chat.test.tsx`](https://github.com/remorses/gpuix/blob/main/apps/examples/chat.test.tsx).
 
 ```
 createTestRoot()          browser render()          launch({ command, args })
@@ -2902,7 +2902,7 @@ import { launch } from '@gpuix/react/automation'
 
 const app = await launch({
   command: 'bun',
-  args: ['examples/chat.tsx'],
+  args: ['apps/examples/chat.tsx'],
   env: { GPUIX_BACKGROUND: '1' },
 })
 await app.getByTestId('composer').fill('hello')
@@ -3002,11 +3002,11 @@ const readout = await app.getByTestId('readout').textContent()
 expect(readout).toBe('x=140 y=60 zoom=24 sel=clip-7')
 ```
 
-Every test in [`examples/timeline.test.tsx`](./examples/timeline.test.tsx) works
+Every test in [`apps/examples/timeline.test.tsx`](./apps/examples/timeline.test.tsx) works
 this way, including the drag, trim, snap, and zoom gestures. Keep the screenshot
 as well, for a human to look at after the run.
 
-Screenshots land in `packages/react/screenshots/` and `examples/screenshots/`,
+Screenshots land in `packages/react/screenshots/` and `apps/examples/screenshots/`,
 both gitignored, so they can be inspected after a run without adding a binary
 diff to every commit. The curated set the README links to lives in
 `docs/images/` and is regenerated with:

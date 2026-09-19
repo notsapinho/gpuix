@@ -7,7 +7,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const root = path.resolve(import.meta.dirname ?? path.dirname(new URL(import.meta.url).pathname))
-const repo = path.resolve(root, '..')
+const repo = path.resolve(root, '..', '..')
 const shim = path.join(root, 'shim-automation.js')
 const target = process.argv[2] === 'chat' ? 'chat' : 'app'
 
